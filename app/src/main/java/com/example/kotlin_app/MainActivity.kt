@@ -45,10 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                uiState.collect { (price, closePrices, symbole) ->
+                uiState.collect { (price, closePrices, symbol) ->
                     logger.info("Price: $price, chart updated")
                     binding.txtPrice.text = "$$price"
-                    binding.txtSymbol.text = symbole
+                    binding.txtSymbol.text = symbol
                     plotDiagram(closePrices, binding.firstGraph)
                 }
             }
