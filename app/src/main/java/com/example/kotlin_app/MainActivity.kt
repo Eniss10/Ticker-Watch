@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.kotlin_app.common.Logger
 import com.example.kotlin_app.common.plotDiagram
 import com.example.kotlin_app.databinding.ActivityMainBinding
+import com.example.kotlin_app.presentation.stock.StockFragment
 import com.example.kotlin_app.presentation.viewmodel.StockViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -24,34 +25,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var logger: Logger
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var uiState: Flow<Triple<Double, List<Double>?, String>>
-    private val viewModel: StockViewModel by viewModels()
-
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        uiState = combine(
-            viewModel.currentPrice,
-            viewModel.lastYearClosePrices,
-            viewModel.currentSymbol
-        ) { price, closePrices, symbol ->
-            Triple(price, closePrices, symbol)
+        setContentView(R.layout.activity_main)
+        logger.info("[onCreate]")
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.stock_fragment_container, StockFragment())
+            .commit()
         }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                uiState.collect { (price, closePrices, symbol) ->
-                    logger.info("Price: $price, chart updated")
-                    binding.txtPrice.text = "$$price"
-                    binding.txtSymbol.text = symbol
-                    plotDiagram(closePrices, binding.firstGraph)
-                }
-            }
-        }
-    }
 }

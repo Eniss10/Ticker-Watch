@@ -5,33 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/txtSymbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/nvidia"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        />
-    
-    <TextView
-        android:id="@+id/txtPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtSymbol"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/firstGraph"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/txtPrice"
+    <FrameLayout
+        android:id="@+id/stock_fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_marginHorizontal="20dp"
-        />
+        android:layout_height="match_parent" />
 </RelativeLayout>

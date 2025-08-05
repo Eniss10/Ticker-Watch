@@ -3,4 +3,6 @@
     <string name="nvidia_price">NVIDIA Price:</string>
     <string name="apple">Apple</string>
     <string name="nvidia">NVIDIA</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
