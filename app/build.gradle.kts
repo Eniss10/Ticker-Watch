@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-
 }
 
 android {
@@ -22,6 +21,11 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
 
     buildTypes {
@@ -66,9 +70,28 @@ dependencies {
 
     implementation("com.squareup:javapoet:1.13.0")
 
-// For coroutines support (required for suspend functions)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 
+    // --- Compose BOM (manages versions of all Compose libs) ---
+    implementation(platform("androidx.compose:compose-bom:2025.01.00")) // use current BOM
 
+    // Core Compose
+    implementation("androidx.activity:activity-compose")          // Activity + Compose interop
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")        // or material (M2) if you prefer
+
+    // Lifecycle / Navigation / Hilt interop (optional but handy)
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // Debug tooling
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // UI tests (optional)
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }
