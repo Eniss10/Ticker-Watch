@@ -25,12 +25,7 @@ enum class StockTicker(val symbol: String) {
     COSTCO("COST"),
     HOME_DEPOT("HD"),
     PROCTER_GAMBLE("PG"),
-    JOHNSON_JOHNSON("JNJ"),
-    BITCOIN("BTC-USD"),
-    ETHEREUM("ETH-USD"),
-    SOLANA("SOL-USD"),
-    DOGECOIN("DOGE-USD"),
-    CARDANO("ADA-USD");
+    JOHNSON_JOHNSON("JNJ");
 
     companion object {
         val allTickers = values().toList()

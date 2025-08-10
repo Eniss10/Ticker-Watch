@@ -1,33 +1,44 @@
 package com.example.kotlin_app.presentation.ui.components
 
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.kotlin_app.common.tickers.StockTicker
 import com.example.kotlin_app.domain.repository.model.StockItem
+import com.example.kotlin_app.presentation.viewmodel.MarketViewModel
 
 @Composable
-fun StockList(list: List<StockItem>) {
+fun StockList(list: List<StockItem?>,
+              marketViewModel: MarketViewModel) {
+    var selectedStock by remember { mutableStateOf<Boolean>(false) }
+    Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn (
+        modifier = Modifier.fillMaxSize().background(color = Color.LightGray),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(list) { stock ->
-            StockUiItem(stock = stock)
+            StockUiItem(stock = stock!!,
+                onClickListener = {
+                    selectedStock = true
+                    marketViewModel.updateCurrentSymbol(stock.ticker)
+                })
         }
     }
-}
-
-@Preview
-@Composable
-fun StockListPreview() {
-    val stockList = listOf(
-        StockItem(StockTicker.APPLE, 100.0),
-        StockItem(StockTicker.MICROSOFT, 100.0),
-        StockItem(StockTicker.AMAZON, 100.0))
-    StockList(list = stockList)
+        if(selectedStock) {
+            StockDetailsDialog(onDismiss = {selectedStock = false})
+        }
+    }
 }

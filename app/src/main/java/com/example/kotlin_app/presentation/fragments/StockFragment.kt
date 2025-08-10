@@ -1,14 +1,11 @@
-package com.example.kotlin_app.presentation.stock
+package com.example.kotlin_app.presentation.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
-import com.example.kotlin_app.R
 import com.example.kotlin_app.common.Logger
-import com.example.kotlin_app.presentation.viewmodel.StockViewModel
 import javax.inject.Inject
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -26,7 +23,6 @@ class StockFragment : Fragment() {
     @Inject
     lateinit var logger: Logger
 
-    private val viewModel: StockViewModel by viewModels()
     private var _binding: FragmentStockBinding? = null
     private val binding get() = _binding!!
     private lateinit var uiState: Flow<Triple<Double, List<Double>?, String>>
@@ -41,24 +37,24 @@ class StockFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        uiState = combine(
-            viewModel.currentPrice,
-            viewModel.lastYearClosePrices,
-            viewModel.currentSymbol
-        ) { price, closePrices, symbol ->
-            Triple(price, closePrices, symbol)
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                uiState.collect { (price, closePrices, symbol) ->
-                    logger.info("Price: $price, chart updated")
-                    binding.txtPrice.text = "$$price"
-                    binding.txtSymbol.text = symbol
-                    plotDiagram(closePrices, binding.firstGraph)
-                }
-            }
-        }
+//        uiState = combine(
+//            viewModel.currentPrice,
+//            viewModel.lastClosePrices,
+//            viewModel.currentSymbol
+//        ) { price, closePrices, symbol ->
+//            Triple(price, closePrices, symbol)
+//        }
+//
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                uiState.collect { (price, closePrices, symbol) ->
+//                    logger.info("Price: $price, chart updated")
+//                    binding.txtPrice.text = "$$price"
+//                    binding.txtSymbol.text = symbol
+//                    plotDiagram(closePrices, binding.firstGraph)
+//                }
+//            }
+//        }
     }
 
     override fun onDestroyView() {
