@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
+import com.example.kotlin_app.domain.repository.FinnHubRepository
 import com.example.kotlin_app.domain.repository.model.toStockItem
 
 @HiltViewModel
 class MarketViewModel @Inject constructor(
     private val logger: Logger,
-    private val yahooRepository: YahooRepository
+    private val yahooRepository: YahooRepository,
+    private val finnHubRepository: FinnHubRepository
 ): ViewModel() {
     private val _currentTicker = MutableStateFlow<StockTicker>(allTickers.first())
     val currentTicker: StateFlow<StockTicker> = _currentTicker
@@ -32,13 +34,17 @@ class MarketViewModel @Inject constructor(
           fetchStockList()
     }
 
+    private suspend fun fetchLogoUrl(ticker: StockTicker): String? {
+        val result = finnHubRepository.getCompanyProfile(ticker.symbol)
+            return result.getOrNull()?.logo
+    }
+
     private fun fetchStockList() {
         viewModelScope.launch {
             try {
                 _currentStockList.value = allTickers.map { ticker ->
-                    logger.info("Fetching stock data for ticker: $ticker")
                     val retrievedTicker = yahooRepository.getChart(ticker = ticker)
-                    retrievedTicker.getOrNull()?.toStockItem(ticker)
+                    retrievedTicker.getOrNull()?.toStockItem(ticker,fetchLogoUrl(ticker))
                 }
             }catch (e : Exception) {
                 logger.error("Error fetching stock list: ${e.message}")
@@ -50,7 +56,7 @@ class MarketViewModel @Inject constructor(
     private fun fetchCurrentItem() {
         viewModelScope.launch {
             val result = yahooRepository.getChart(ticker = _currentTicker.value)
-            val stockData = result.getOrNull()?.toStockItem(_currentTicker.value)
+            val stockData = result.getOrNull()?.toStockItem(_currentTicker.value, fetchLogoUrl(_currentTicker.value))
 
             if (stockData != null) {
                 _currentStockItem.value = stockData

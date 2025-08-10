@@ -94,4 +94,6 @@ dependencies {
     // UI tests (optional)
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

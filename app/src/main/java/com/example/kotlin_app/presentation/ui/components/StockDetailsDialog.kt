@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
 import com.example.kotlin_app.R
 import com.example.kotlin_app.presentation.viewmodel.MarketViewModel
 
@@ -51,7 +52,8 @@ fun StockDetailsDialog(
         ) {
             Header(
                 currentSymbol = currentItem?.ticker?.symbol,
-                currentName = currentItem?.name,
+                currentName = currentItem?.shortName,
+                urlLogo = currentItem?.logoUrl
                 )
         }
 
@@ -62,6 +64,7 @@ fun StockDetailsDialog(
 private fun Header(
     currentSymbol: String? = null,
     currentName: String? = null,
+    urlLogo: String? = null,
 ) {
     Row (
         Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp),
@@ -69,7 +72,7 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically
     )
     {
-        StockTitle(currentSymbol, currentName)
+        StockTitle(currentSymbol, currentName,urlLogo)
 
         Image(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_share),
@@ -83,10 +86,11 @@ private fun Header(
 private fun StockTitle(
     currentSymbol: String? = null,
     currentName: String? = null,
+    urlLogo: String? = null,
     ) {
     Row() {
         Image(
-            painter = painterResource(id = R.drawable.apple_icon_example),
+            painter = rememberAsyncImagePainter(urlLogo),
             contentDescription = "Apple stock icon",
             modifier = Modifier
                 .size(50.dp)
