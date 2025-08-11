@@ -17,12 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.kotlin_app.domain.repository.model.StockItem
+import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.presentation.viewmodel.MarketViewModel
 
 @Composable
-fun StockList(list: List<StockItem?>,
+fun StockList(list: List<StockItem>,
               marketViewModel: MarketViewModel) {
-    var selectedStock by remember { mutableStateOf<Boolean>(false) }
+    var itemIsSelected by remember { mutableStateOf<Boolean>(false) }
+    var selectedItem by remember { mutableStateOf<StockItem>(createPlaceholderStockItem()) }
+
     Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn (
         modifier = Modifier.fillMaxSize().background(color = Color.LightGray),
@@ -30,15 +33,16 @@ fun StockList(list: List<StockItem?>,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(list) { stock ->
-            StockUiItem(stock = stock!!,
+            StockUiItem(stock = stock,
                 onClickListener = {
-                    selectedStock = true
+                    itemIsSelected = true
+                    selectedItem = stock
                     marketViewModel.updateCurrentSymbol(stock.ticker)
                 })
         }
     }
-        if(selectedStock) {
-            StockDetailsDialog(onDismiss = {selectedStock = false})
+        if(itemIsSelected) {
+            StockDetailsDialog(onDismiss = {itemIsSelected = false}, displayedItem = selectedItem )
         }
     }
 }

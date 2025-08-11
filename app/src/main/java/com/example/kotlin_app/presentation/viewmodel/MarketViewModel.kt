@@ -1,5 +1,6 @@
 package com.example.kotlin_app.presentation.viewmodel
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import com.example.kotlin_app.common.Logger
 import com.example.kotlin_app.common.tickers.StockTicker
@@ -13,7 +14,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.example.kotlin_app.domain.repository.FinnHubRepository
+import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 @HiltViewModel
 class MarketViewModel @Inject constructor(
@@ -24,32 +30,51 @@ class MarketViewModel @Inject constructor(
     private val _currentTicker = MutableStateFlow<StockTicker>(allTickers.first())
     val currentTicker: StateFlow<StockTicker> = _currentTicker
 
-    private val _currentStockItem = MutableStateFlow<StockItem?>(null)
-    val currentItem: StateFlow<StockItem?> = _currentStockItem
+    private val _currentStockItem = MutableStateFlow<StockItem>(createPlaceholderStockItem())
+    val currentItem: StateFlow<StockItem> = _currentStockItem
 
-    private val _currentStockList = MutableStateFlow<List<StockItem?>>(emptyList())
-    val currentStockList: StateFlow<List<StockItem?>> = _currentStockList
+    private val _currentStockList = MutableStateFlow<List<StockItem>>(emptyList())
+    val currentStockList: StateFlow<List<StockItem>> = _currentStockList
 
     init {
           fetchStockList()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private suspend fun fetchLogoUrl(ticker: StockTicker): String? {
         val result = finnHubRepository.getCompanyProfile(ticker.symbol)
-            return result.getOrNull()?.logo
+        return result.getOrNull()?.logo
     }
 
     private fun fetchStockList() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                _currentStockList.value = allTickers.map { ticker ->
-                    val retrievedTicker = yahooRepository.getChart(ticker = ticker)
-                    retrievedTicker.getOrNull()?.toStockItem(ticker,fetchLogoUrl(ticker))
+                _currentStockList.value = coroutineScope {
+                    allTickers.map { ticker ->
+                        async {
+                            val chartResult = yahooRepository.getChart(ticker = ticker)
+                            val chart = chartResult.getOrNull()
+
+                            if (chart != null && chartResult.isSuccess) {
+                                val logoUrl = if (ticker.logoRes != null) null else runCatching {
+                                    fetchLogoUrl(ticker)
+                                }.getOrNull()
+
+                                chart.toStockItem(
+                                    ticker = ticker,
+                                    logoRes = ticker.logoRes,
+                                    logoUrl = logoUrl
+                                )
+                            } else {
+                                logger.error("Failed to fetch chart for ${ticker.symbol}: ${chartResult.exceptionOrNull()?.message}")
+                                createPlaceholderStockItem()
+                            }
+                        }
+                    }.awaitAll()
                 }
-            }catch (e : Exception) {
+            } catch (e: Exception) {
                 logger.error("Error fetching stock list: ${e.message}")
             }
-
         }
     }
 

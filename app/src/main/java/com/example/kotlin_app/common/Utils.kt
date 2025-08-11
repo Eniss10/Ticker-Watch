@@ -2,6 +2,7 @@ package com.example.kotlin_app.common
 
 import android.graphics.Color
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -20,8 +21,24 @@ fun plotDiagram(closePrices: List<Double>?, chart: LineChart) {
     }
 
     val lineData = LineData(dataSet)
-
     chart.data = lineData
+
+    chart.xAxis.apply {
+        position = XAxis.XAxisPosition.BOTTOM
+        setDrawGridLines(true)     // Keep vertical grid lines
+        granularity = 1f           // Show every label
+        isGranularityEnabled = true
+        textColor = Color.BLACK
+        gridColor = Color.LTGRAY
+    }
+
+    chart.axisLeft.apply {
+        setDrawGridLines(true)
+        gridColor = Color.LTGRAY
+        textColor = Color.BLACK
+    }
+
+    chart.axisRight.isEnabled = false
     chart.description.text = "Stock close prices"
     chart.invalidate()
 }
