@@ -8,6 +8,7 @@ import com.example.kotlin_app.data.repository.FinnHubRepositoryImpl
 import com.example.kotlin_app.data.repository.YahooRepositoryImpl
 import com.example.kotlin_app.domain.repository.FinnHubRepository
 import com.example.kotlin_app.domain.repository.YahooRepository
+
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,7 +51,7 @@ object NetworkModule {
 
     @Provides
     @Named("finnhubToken")
-    fun provideFinnhubToken(): String = "d27mpphr01qr2iasjjg0d27mpphr01qr2iasjjgg"
+    fun provideFinnhubToken(): String = com.example.kotlin_app.BuildConfig.FINNHUB_API_KEY
 
     @Provides
     @Singleton

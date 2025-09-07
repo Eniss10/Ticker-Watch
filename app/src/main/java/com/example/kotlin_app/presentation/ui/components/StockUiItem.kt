@@ -17,21 +17,27 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.kotlin_app.domain.repository.model.StockItem
+import com.example.kotlin_app.presentation.viewmodel.MarketViewModel
 
 @Composable
 fun StockUiItem(
-     stock: StockItem,
-     onClickListener: () -> Unit = {}
+    stock: StockItem,
+    onClickListener: () -> Unit = {}
     ) {
     Card(
         modifier = Modifier
@@ -50,31 +56,7 @@ fun StockUiItem(
             horizontalArrangement = Arrangement.SpaceBetween,
 
             ) {
-            Row() {
-                Image(
-                    painter = painterResource(id = stock.logoRes!!),
-                    contentDescription = "stock icon",
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Text(text = stock.ticker.symbol, fontWeight = FontWeight.Bold)
-                        Text(text = stock.shortName, fontSize = 10.sp, fontWeight = FontWeight.Light)
-                    }
-                }
-
-            }
+            StockInfoRow(stock = stock)
             Text(text = "$${stock.price.toString()}")
         }
     }

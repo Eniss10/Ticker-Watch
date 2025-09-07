@@ -17,15 +17,18 @@ import com.example.kotlin_app.domain.repository.FinnHubRepository
 import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.stateIn
+
 
 @HiltViewModel
 class MarketViewModel @Inject constructor(
     private val logger: Logger,
     private val yahooRepository: YahooRepository,
-    private val finnHubRepository: FinnHubRepository
+    private val finnHubRepository: FinnHubRepository,
 ): ViewModel() {
     private val _currentTicker = MutableStateFlow<StockTicker>(allTickers.first())
     val currentTicker: StateFlow<StockTicker> = _currentTicker
@@ -35,6 +38,7 @@ class MarketViewModel @Inject constructor(
 
     private val _currentStockList = MutableStateFlow<List<StockItem>>(emptyList())
     val currentStockList: StateFlow<List<StockItem>> = _currentStockList
+
 
     init {
           fetchStockList()

@@ -16,10 +16,14 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val FinnhubApiKey ="Just A Key From The Finnhub API"
+        buildConfigField ("String", "FINNHUB_API_KEY", "\"$FinnhubApiKey\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         compose = true
     }
@@ -96,4 +100,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
 }
