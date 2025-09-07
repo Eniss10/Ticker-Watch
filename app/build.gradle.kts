@@ -16,7 +16,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        val FinnhubApiKey ="Just A Key From The Finnhub API"
+        val FinnhubApiKey ="d27mpphr01qr2iasjjg0d27mpphr01qr2iasjjgg"
         buildConfigField ("String", "FINNHUB_API_KEY", "\"$FinnhubApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -106,4 +106,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 }

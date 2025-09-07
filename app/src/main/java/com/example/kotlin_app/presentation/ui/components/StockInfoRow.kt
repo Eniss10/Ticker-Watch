@@ -29,7 +29,7 @@ fun StockInfoRow(stock: StockItem,
                  iconSize : Dp = 42.dp
 
 ) {
-    Row() {
+    Row {
         Icon(
             painter = stock.logoRes?.let {
                 painterResource(id = it)
@@ -40,18 +40,14 @@ fun StockInfoRow(stock: StockItem,
                 .clip(CircleShape),
             tint = Color.Unspecified
         )
-        Box(
-            modifier = Modifier
-                .height(iconSize)
-                .padding(start = 10.dp)
-        ) {
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier
+                    .height(iconSize)
+                    .padding(start = 10.dp)
             ) {
                 Text(text = stock.ticker.symbol, fontWeight = FontWeight.Bold)
                 Text(text = stock.shortName, fontSize = 10.sp, fontWeight = FontWeight.Light)
             }
         }
     }
-}

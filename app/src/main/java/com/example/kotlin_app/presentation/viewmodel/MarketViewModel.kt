@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
+import com.example.kotlin_app.data.local.toEntity
+import com.example.kotlin_app.data.repository.DbRepository
 import com.example.kotlin_app.domain.repository.FinnHubRepository
 import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
@@ -29,6 +31,7 @@ class MarketViewModel @Inject constructor(
     private val logger: Logger,
     private val yahooRepository: YahooRepository,
     private val finnHubRepository: FinnHubRepository,
+    private val dbRepository: DbRepository
 ): ViewModel() {
     private val _currentTicker = MutableStateFlow<StockTicker>(allTickers.first())
     val currentTicker: StateFlow<StockTicker> = _currentTicker
@@ -50,10 +53,14 @@ class MarketViewModel @Inject constructor(
         return result.getOrNull()?.logo
     }
 
+    private suspend fun saveAllTickersInDb(stocks: List<StockItem>) {
+        dbRepository.saveStocks(stocks.map { it.toEntity() })
+    }
+
     private fun fetchStockList() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _currentStockList.value = coroutineScope {
+                val stockList = coroutineScope {
                     allTickers.map { ticker ->
                         async {
                             val chartResult = yahooRepository.getChart(ticker = ticker)
@@ -69,6 +76,8 @@ class MarketViewModel @Inject constructor(
                                     logoRes = ticker.logoRes,
                                     logoUrl = logoUrl
                                 )
+
+
                             } else {
                                 logger.error("Failed to fetch chart for ${ticker.symbol}: ${chartResult.exceptionOrNull()?.message}")
                                 createPlaceholderStockItem()
@@ -76,6 +85,8 @@ class MarketViewModel @Inject constructor(
                         }
                     }.awaitAll()
                 }
+                _currentStockList.value = stockList
+                saveAllTickersInDb(stockList)
             } catch (e: Exception) {
                 logger.error("Error fetching stock list: ${e.message}")
             }
