@@ -11,25 +11,22 @@ import javax.inject.Inject
 
 class NetworkMonitorImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) : NetworkMonitor
-
-{
+): NetworkMonitor {
     private val _isOnline = MutableStateFlow(false)
     override val isOnline: StateFlow<Boolean> = _isOnline.asStateFlow()
 
+    private val networkReceiver: NetworkReceiver = NetworkReceiver(
+        onConnect = { _isOnline.value = true },
+        onDisconnect = { _isOnline.value = false }
+    )
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    init {
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: android.net.Network) {
-                _isOnline.value = true
-            }
 
-            override fun onLost(network: android.net.Network) {
-                _isOnline.value = false
-            }
-        }
+    override fun registerNetworkCallback() {
+        connectivityManager.registerDefaultNetworkCallback(networkReceiver)
+    }
 
-        connectivityManager.registerDefaultNetworkCallback(callback)
+    override fun unregisterNetworkCallback() {
+        connectivityManager.unregisterNetworkCallback(networkReceiver)
     }
 }

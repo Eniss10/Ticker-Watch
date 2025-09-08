@@ -22,6 +22,7 @@ import com.example.kotlin_app.domain.network.NetworkMonitor
 import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -44,23 +45,7 @@ class MarketViewModel @Inject constructor(
     private val _currentStockList = MutableStateFlow<List<StockItem>>(emptyList())
     val currentStockList: StateFlow<List<StockItem>> = _currentStockList
 
-
-    init {
-         viewModelScope.launch {
-             networkMonitor.isOnline.collect { isOnline ->
-                 if (isOnline) {
-                     logger.info("Device is online")
-                     fetchStockList()
-                 }
-                 else {
-
-                     logger.info("Device is offline")
-                     val dbStocks = dbRepository.getAllStocks().map { it.toDomain(toStockTicker(it.symbol)) }.filter { it.ticker != StockTicker.IVALIDTICKER }
-                     _currentStockList.value = dbStocks
-                 }
-             }
-         }
-    }
+    private var networkJob: Job? = null
 
     @SuppressLint("SuspiciousIndentation")
     private suspend fun fetchLogoUrl(ticker: StockTicker): String? {
@@ -127,5 +112,35 @@ class MarketViewModel @Inject constructor(
     fun updateCurrentSymbol(stockTicker: StockTicker) {
         _currentTicker.value = stockTicker
         fetchCurrentItem()
+    }
+
+    fun unregisterNetworkObserver() {
+        networkMonitor.unregisterNetworkCallback()
+        networkJob?.cancel()
+        networkJob = null
+    }
+
+    fun registerNetworkObserver() {
+        if(networkJob != null) return
+
+        networkJob = viewModelScope.launch {
+            networkMonitor.registerNetworkCallback()
+
+            networkMonitor.isOnline.collect { isOnline ->
+                if (isOnline) {
+                    logger.info("Device is online")
+                    fetchStockList()
+                }
+                else {
+                    logger.info("Device is offline")
+                    if (_currentStockList.value.isEmpty() && dbRepository.getAllStocks().isNotEmpty()) {
+                        val dbStocks = dbRepository.getAllStocks()
+                            .map { it.toDomain(toStockTicker(it.symbol)) }
+                            .filter { it.ticker != StockTicker.IVALIDTICKER }
+                        _currentStockList.value = dbStocks
+                    }
+                }
+            }
+        }
     }
 }
