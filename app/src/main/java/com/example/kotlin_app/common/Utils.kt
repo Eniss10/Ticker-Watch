@@ -25,8 +25,8 @@ fun plotDiagram(closePrices: List<Double>?, chart: LineChart) {
 
     chart.xAxis.apply {
         position = XAxis.XAxisPosition.BOTTOM
-        setDrawGridLines(true)     // Keep vertical grid lines
-        granularity = 1f           // Show every label
+        setDrawGridLines(true)
+        granularity = 1f
         isGranularityEnabled = true
         textColor = Color.BLACK
         gridColor = Color.LTGRAY

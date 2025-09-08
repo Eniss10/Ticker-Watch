@@ -19,6 +19,8 @@ import com.example.kotlin_app.data.local.toEntity
 import com.example.kotlin_app.data.repository.DbRepository
 import com.example.kotlin_app.domain.repository.FinnHubRepository
 import com.example.kotlin_app.domain.network.NetworkMonitor
+import com.example.kotlin_app.domain.repository.model.Interval
+import com.example.kotlin_app.domain.repository.model.Range
 import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import java.time.Period
 
 
 @HiltViewModel
@@ -41,6 +44,9 @@ class MarketViewModel @Inject constructor(
 
     private val _currentStockItem = MutableStateFlow<StockItem>(createPlaceholderStockItem())
     val currentItem: StateFlow<StockItem> = _currentStockItem
+
+    private val _currentRange = MutableStateFlow<Range>(Range.ONE_YEAR)
+    val currentRange: StateFlow<Range> = _currentRange
 
     private val _currentStockList = MutableStateFlow<List<StockItem>>(emptyList())
     val currentStockList: StateFlow<List<StockItem>> = _currentStockList
@@ -64,7 +70,7 @@ class MarketViewModel @Inject constructor(
                 val stockList = coroutineScope {
                     allTickers.map { ticker ->
                         async {
-                            val chartResult = yahooRepository.getChart(ticker = ticker)
+                            val chartResult = yahooRepository.getChart(ticker = ticker,range =  Range.ONE_YEAR.value, interval = Interval.ONE_DAY.value)
                             val chart = chartResult.getOrNull()
 
                             if (chart != null && chartResult.isSuccess) {
@@ -96,7 +102,7 @@ class MarketViewModel @Inject constructor(
 
     private fun fetchCurrentItem() {
         viewModelScope.launch {
-            val result = yahooRepository.getChart(ticker = _currentTicker.value)
+            val result = yahooRepository.getChart(ticker = _currentTicker.value, range =  Range.ONE_YEAR.value, interval = Interval.ONE_DAY.value )
             val stockData = result.getOrNull()?.toStockItem(_currentTicker.value, fetchLogoUrl(_currentTicker.value))
 
             if (stockData != null) {

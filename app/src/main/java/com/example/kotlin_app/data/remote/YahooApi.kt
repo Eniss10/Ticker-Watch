@@ -10,8 +10,8 @@ interface YahooApi {
     @GET("v8/finance/chart/{symbol}")
     suspend fun getChart(
         @Path("symbol") symbol: String,
-        @Query("interval") interval: String = "1d",
-        @Query("range") range: String = "1y",
+        @Query("interval") interval: String,
+        @Query("range") range: String,
         @Query("includePrePost") includePrePost: Boolean = false
     ): YahooResult
 }

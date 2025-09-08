@@ -2,7 +2,6 @@ package com.example.kotlin_app.common.tickers
 
 import androidx.annotation.DrawableRes
 import com.example.kotlin_app.R
-import com.example.kotlin_app.domain.repository.model.StockItem
 
 enum class StockTicker(val symbol: String, @DrawableRes val logoRes: Int? = null) {
     IVALIDTICKER("INVALIDTICKER"),
