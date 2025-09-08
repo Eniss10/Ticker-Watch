@@ -24,5 +24,8 @@ enum class StockTicker(val symbol: String, @DrawableRes val logoRes: Int? = null
 
     companion object {
         val allTickers = values().toList().filterNot { it == IVALIDTICKER }
+
+        fun toStockTicker(symbol: String): StockTicker = entries.toTypedArray().find { it.symbol == symbol} ?: IVALIDTICKER
     }
+
 }

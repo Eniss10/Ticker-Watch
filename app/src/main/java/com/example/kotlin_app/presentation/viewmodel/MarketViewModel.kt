@@ -13,17 +13,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
+import com.example.kotlin_app.common.tickers.StockTicker.Companion.toStockTicker
+import com.example.kotlin_app.data.local.toDomain
 import com.example.kotlin_app.data.local.toEntity
 import com.example.kotlin_app.data.repository.DbRepository
 import com.example.kotlin_app.domain.repository.FinnHubRepository
+import com.example.kotlin_app.domain.network.NetworkMonitor
 import com.example.kotlin_app.domain.repository.model.createPlaceholderStockItem
 import com.example.kotlin_app.domain.repository.model.toStockItem
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.stateIn
 
 
 @HiltViewModel
@@ -31,7 +32,8 @@ class MarketViewModel @Inject constructor(
     private val logger: Logger,
     private val yahooRepository: YahooRepository,
     private val finnHubRepository: FinnHubRepository,
-    private val dbRepository: DbRepository
+    private val dbRepository: DbRepository,
+    private val networkMonitor: NetworkMonitor
 ): ViewModel() {
     private val _currentTicker = MutableStateFlow<StockTicker>(allTickers.first())
     val currentTicker: StateFlow<StockTicker> = _currentTicker
@@ -44,7 +46,20 @@ class MarketViewModel @Inject constructor(
 
 
     init {
-          fetchStockList()
+         viewModelScope.launch {
+             networkMonitor.isOnline.collect { isOnline ->
+                 if (isOnline) {
+                     logger.info("Device is online")
+                     fetchStockList()
+                 }
+                 else {
+
+                     logger.info("Device is offline")
+                     val dbStocks = dbRepository.getAllStocks().map { it.toDomain(toStockTicker(it.symbol)) }.filter { it.ticker != StockTicker.IVALIDTICKER }
+                     _currentStockList.value = dbStocks
+                 }
+             }
+         }
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -54,6 +69,7 @@ class MarketViewModel @Inject constructor(
     }
 
     private suspend fun saveAllTickersInDb(stocks: List<StockItem>) {
+        logger.info("Saving all tickers in DB")
         dbRepository.saveStocks(stocks.map { it.toEntity() })
     }
 

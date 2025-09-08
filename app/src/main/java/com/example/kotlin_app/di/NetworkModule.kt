@@ -1,17 +1,21 @@
 package com.example.kotlin_app.di
 
+import android.content.Context
 import com.example.kotlin_app.common.Logger
 import com.example.kotlin_app.common.LoggerImpl
 import com.example.kotlin_app.data.remote.FinnHubApi
 import com.example.kotlin_app.data.remote.YahooApi
 import com.example.kotlin_app.data.repository.FinnHubRepositoryImpl
+import com.example.kotlin_app.framework.network.NetworkMonitorImpl
 import com.example.kotlin_app.data.repository.YahooRepositoryImpl
 import com.example.kotlin_app.domain.repository.FinnHubRepository
+import com.example.kotlin_app.domain.network.NetworkMonitor
 import com.example.kotlin_app.domain.repository.YahooRepository
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -56,4 +60,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideLogger(): Logger = LoggerImpl()
+
+    @Provides
+    fun provideNetworkMonitor(@ApplicationContext context: Context): NetworkMonitor = NetworkMonitorImpl(context)
 }
